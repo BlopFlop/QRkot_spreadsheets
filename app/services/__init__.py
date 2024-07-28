@@ -1,1 +1,1 @@
-from app.services.invest_operation import invest_process # noqa
+from app.services.invest_operation import invest_process  # noqa

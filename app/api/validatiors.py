@@ -3,40 +3,56 @@ from http import HTTPStatus
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud import crud_project
 from app.models import CharityProject
+from app.repository import repository_project
+from app.schemas import CharityProjectSchemaUpdate
 
 
 async def check_name_duplicate(
-        project_name: str,
-        session: AsyncSession,
+    project_name: str,
+    session: AsyncSession,
 ) -> None:
     """Check duplicate name project in DB."""
-    room_id = await crud_project.get_project_id_by_name(project_name, session)
-    if room_id is not None:
+    project = await repository_project.get_obj_for_filed_arg(
+        'name', project_name, False, session
+    )
+    if project is not None:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
-            detail='Проект с таким именем уже существует!',
+            detail="Проект с таким именем уже существует!",
         )
 
 
-def check_full_invested_project(
-        project: CharityProject
-) -> None:
+def check_full_invested_project(project: CharityProject) -> None:
     """Check full invested project in DB."""
     if project.fully_invested:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
-            detail='Проект нельзя редактировать он полностью проинвестирован.'
+            detail="Проект нельзя редактировать он полностью проинвестирован.",
         )
 
 
-def check_has_deleted_project(
-        project: CharityProject
-) -> None:
+def check_has_deleted_project(project: CharityProject) -> None:
     """Check has deleted project in DB."""
     if project.invested_amount > 0:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
-            detail='Проект нельзя удалить, средства уже внесены.'
+            detail="Проект нельзя удалить, средства уже внесены.",
         )
+
+
+def check_full_amount_project(
+    project: CharityProject, project_update: CharityProjectSchemaUpdate
+) -> None:
+    """Check new full_amount more than invested_amount."""
+    invested_amount = project.invested_amount
+    new_full_amount = project_update.full_amount
+    if new_full_amount is not None:
+        if new_full_amount < invested_amount:
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    "При редактировании проекта запрещено устанавливать"
+                    " требуемую сумму меньше внесённой"
+                ),
+            )

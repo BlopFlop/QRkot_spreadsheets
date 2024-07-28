@@ -1,5 +1,5 @@
-# app/core/init_db.py
 import contextlib
+from contextlib import suppress
 
 from fastapi_users.exceptions import UserAlreadyExists
 from pydantic import EmailStr
@@ -15,10 +15,10 @@ get_user_manager_context = contextlib.asynccontextmanager(get_user_manager)
 
 
 async def create_user(
-        email: EmailStr, password: str, is_superuser: bool = False
+    email: EmailStr, password: str, is_superuser: bool = False
 ):
     """Create user item for DB."""
-    try:
+    with suppress(UserAlreadyExists):
         async with get_async_session_context() as session:
             async with get_user_db_context(session) as user_db:
                 async with get_user_manager_context(user_db) as user_manager:
@@ -26,17 +26,17 @@ async def create_user(
                         UserCreate(
                             email=email,
                             password=password,
-                            is_superuser=is_superuser
+                            is_superuser=is_superuser,
                         )
                     )
-    except UserAlreadyExists:
-        pass
 
 
 async def create_first_superuser():
     """Autocreaete first superuser."""
-    if (settings.first_superuser_email is not None and
-            settings.first_superuser_password is not None):
+    if (
+        settings.first_superuser_email is not None
+        and settings.first_superuser_password is not None
+    ):
         await create_user(
             email=settings.first_superuser_email,
             password=settings.first_superuser_password,
