@@ -70,17 +70,11 @@ class RepositoryBase:
         return db_obj
 
     async def get_obj_for_filed_arg(
-            self,
-            filed: str,
-            arg: Any,
-            many: bool,
-            session: AsyncSession
+        self, filed: str, arg: Any, many: bool, session: AsyncSession
     ):
         """Get model for keyword argument."""
         db_obj = await session.execute(
-            select(self.model).where(
-                self.model.__dict__[filed] == arg
-            )
+            select(self.model).where(self.model.__dict__[filed] == arg)
         )
         if many:
             return db_obj.scalars().all()

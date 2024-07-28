@@ -1,10 +1,10 @@
-from typing import Optional
-from logging.handlers import RotatingFileHandler
 import logging
+from logging.handlers import RotatingFileHandler
+from typing import Optional
 
 from pydantic import BaseSettings, EmailStr
 
-from app.core.constants import LOG_DIR, LOG_FORMAT, DATE_FORMAT
+from app.core.constants import DATE_FORMAT, LOG_DIR, LOG_FORMAT
 
 
 class Settings(BaseSettings):

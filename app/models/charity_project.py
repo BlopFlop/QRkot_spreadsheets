@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, CheckConstraint
+from sqlalchemy import CheckConstraint, Column, String
 
 from app.core.db import Base
 from app.models.base import DonatForProjectBaseCreate

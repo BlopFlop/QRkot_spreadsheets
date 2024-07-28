@@ -1,6 +1,5 @@
 import logging
-
-from typing import Optional, Union, AsyncGenerator, Any
+from typing import Any, AsyncGenerator, Optional, Union
 
 from fastapi import Depends, Request
 from fastapi_users import (

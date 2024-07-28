@@ -14,7 +14,7 @@ async def check_name_duplicate(
 ) -> None:
     """Check duplicate name project in DB."""
     project = await repository_project.get_obj_for_filed_arg(
-        'name', project_name, False, session
+        "name", project_name, False, session
     )
     if project is not None:
         raise HTTPException(

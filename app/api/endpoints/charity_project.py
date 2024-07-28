@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.validatiors import (
-    check_full_invested_project,
     check_full_amount_project,
+    check_full_invested_project,
     check_has_deleted_project,
     check_name_duplicate,
 )

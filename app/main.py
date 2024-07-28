@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from app.api import router
-from app.core.config import settings, configure_logging
+from app.core.config import configure_logging, settings
 from app.core.init_db import create_first_superuser
 
 configure_logging()

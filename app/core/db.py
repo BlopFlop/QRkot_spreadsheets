@@ -2,15 +2,15 @@ from typing import Any, AsyncGenerator
 
 from sqlalchemy import Column, Integer
 from sqlalchemy.ext.asyncio import (
-    AsyncSession,
     AsyncEngine,
+    AsyncSession,
     create_async_engine,
 )
 from sqlalchemy.orm import (
+    DeclarativeMeta,
     declarative_base,
     declared_attr,
     sessionmaker,
-    DeclarativeMeta,
 )
 
 from app.core.config import settings

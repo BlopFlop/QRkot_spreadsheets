@@ -3,8 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_async_session
 from app.core.user import current_superuser, current_user
-from app.repository import repository_donate
 from app.models import User
+from app.repository import repository_donate
 from app.schemas import (
     AllDonationsSchemaDB,
     DonationSchemmaCreate,
@@ -59,5 +59,5 @@ async def get_user_donations(
     session: AsyncSession = Depends(get_async_session),
 ):
     return await repository_donate.get_obj_for_filed_arg(
-        filed='user_id', arg=user.id, many=True, session=session
+        filed="user_id", arg=user.id, many=True, session=session
     )
