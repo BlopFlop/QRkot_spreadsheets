@@ -4,7 +4,6 @@ from fastapi import HTTPException
 
 from app.models import CharityProject
 from app.repository import RepositoryBase
-
 from app.schemas import CharityProjectSchemaUpdate
 
 
