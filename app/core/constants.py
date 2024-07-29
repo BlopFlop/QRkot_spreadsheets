@@ -1,8 +1,9 @@
 from pathlib import Path
+from typing import Final
 
-BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent
+BASE_DIR: Final[Path] = Path(__file__).resolve().parent.parent.parent
 
-DATE_FORMAT: str = "%Y-%m-%d"
+DATE_FORMAT: Final[str] = "%Y-%m-%d"
 
-LOG_DIR: Path = BASE_DIR / "logs"
-LOG_FORMAT: str = '"%(asctime)s - [%(levelname)s] - %(message)s"'
+LOG_DIR: Final[Path] = BASE_DIR / "logs"
+LOG_FORMAT: Final[str] = '"%(asctime)s - [%(levelname)s] - %(message)s"'

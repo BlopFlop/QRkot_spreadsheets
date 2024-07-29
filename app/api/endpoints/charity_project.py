@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.validatiors import (
     check_full_amount_project,
@@ -7,10 +6,13 @@ from app.api.validatiors import (
     check_has_deleted_project,
     check_name_duplicate,
 )
-from app.core.db import get_async_session
 from app.core.user import current_superuser
 from app.models import CharityProject
-from app.repository import repository_project
+from app.repository import (
+    RepositoryBase,
+    get_repository_donation,
+    get_repository_project,
+)
 from app.schemas import (
     CharityProjectSchemaCreate,
     CharityProjectSchemaDB,
@@ -28,9 +30,9 @@ router = APIRouter()
     description="Получает проекты из базы данных.",
 )
 async def get_all_charity_projects(
-    session: AsyncSession = Depends(get_async_session),
+    repository_project: RepositoryBase = Depends(get_repository_project),
 ) -> list[CharityProject]:
-    return await repository_project.get_multi(session=session)
+    return await repository_project.get_multi()
 
 
 @router.post(
@@ -42,15 +44,18 @@ async def get_all_charity_projects(
 )
 async def create_charity_project(
     charity_project: CharityProjectSchemaCreate,
-    session: AsyncSession = Depends(get_async_session),
+    repository_project: RepositoryBase = Depends(get_repository_project),
+    repository_donation: RepositoryBase = Depends(get_repository_donation),
 ) -> CharityProject:
     await check_name_duplicate(
-        project_name=charity_project.name, session=session
+        project_name=charity_project.name,
+        repository_project=repository_project,
     )
-    new_project = await repository_project.create(
-        obj_in=charity_project, session=session
+    new_project = await repository_project.create(obj_in=charity_project)
+    new_project = await invest_process(
+        new_obj=new_project,
+        repository=repository_donation,
     )
-    new_project = await invest_process(new_project, session)
     return new_project
 
 
@@ -65,11 +70,12 @@ async def create_charity_project(
     ),
 )
 async def delete_charity_project(
-    project_id: int, session: AsyncSession = Depends(get_async_session)
+    project_id: int,
+    repository_project: RepositoryBase = Depends(get_repository_project),
 ) -> CharityProject:
-    project = await repository_project.get(obj_id=project_id, session=session)
+    project = await repository_project.get(obj_id=project_id)
     check_has_deleted_project(project)
-    return await repository_project.remove(db_obj=project, session=session)
+    return await repository_project.remove(db_obj=project)
 
 
 @router.patch(
@@ -81,16 +87,16 @@ async def delete_charity_project(
 async def change_charity_project(
     project_id: int,
     obj_in: CharityProjectSchemaUpdate,
-    session: AsyncSession = Depends(get_async_session),
+    repository_project: RepositoryBase = Depends(get_repository_project),
 ) -> CharityProject:
     project_name = obj_in.name
 
     if project_name:
-        await check_name_duplicate(obj_in.name, session)
+        await check_name_duplicate(obj_in.name, repository_project)
 
-    project = await repository_project.get(obj_id=project_id, session=session)
+    project = await repository_project.get(obj_id=project_id)
 
     check_full_invested_project(project)
     check_full_amount_project(project, obj_in)
 
-    return await repository_project.update(project, obj_in, session)
+    return await repository_project.update(project, obj_in)

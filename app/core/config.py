@@ -36,7 +36,7 @@ class Settings(BaseSettings):
 
 
 def configure_logging() -> None:
-    """Configure logging from this project"""
+    """Configure logging from this project."""
     LOG_DIR.mkdir(exist_ok=True)
     log_file = LOG_DIR / "qr_kot_logging.log"
     rotating_handler = RotatingFileHandler(

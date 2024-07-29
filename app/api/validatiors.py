@@ -1,20 +1,19 @@
 from http import HTTPStatus
 
 from fastapi import HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import CharityProject
-from app.repository import repository_project
+from app.repository import RepositoryBase
+
 from app.schemas import CharityProjectSchemaUpdate
 
 
 async def check_name_duplicate(
-    project_name: str,
-    session: AsyncSession,
+    project_name: str, repository_project: RepositoryBase
 ) -> None:
     """Check duplicate name project in DB."""
-    project = await repository_project.get_obj_for_filed_arg(
-        "name", project_name, False, session
+    project = await repository_project.get_obj_for_field_arg(
+        field="name", arg=project_name, many=False
     )
     if project is not None:
         raise HTTPException(

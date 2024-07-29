@@ -1,3 +1,5 @@
+from typing import Any, AsyncGenerator
+
 from aiogoogle import Aiogoogle
 from aiogoogle.auth.creds import ServiceAccountCreds
 
@@ -21,9 +23,9 @@ INFO = {
     "client_x509_cert_url": settings.client_x509_cert_url,
 }
 
-cred: ServiceAccountCreds = ServiceAccountCreds(scopes=SCOPES, **INFO)
+cred = ServiceAccountCreds(scopes=SCOPES, **INFO)
 
 
-async def get_service():
+async def get_service() -> AsyncGenerator[Aiogoogle, Any]:
     async with Aiogoogle(service_account_creds=cred) as aiogoogle:
         yield aiogoogle

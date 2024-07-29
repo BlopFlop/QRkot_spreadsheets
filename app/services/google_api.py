@@ -8,6 +8,7 @@ from app.models import CharityProject
 
 
 async def create_spreadsheet(wrapper_services: Aiogoogle) -> str:
+    """Create table in google services."""
     now_date_time = datetime.now().strftime(DATE_FORMAT)
     service = await wrapper_services.discover("sheets", "v4")
     spreadsheet_body = {
@@ -36,6 +37,7 @@ async def create_spreadsheet(wrapper_services: Aiogoogle) -> str:
 async def set_user_permissions_in_spreadsheet(
     spreadsheetid: str, wrapper_services: Aiogoogle
 ) -> None:
+    """Get permission user for google tab."""
     permissions_body = {
         "type": "user",
         "role": "writer",
@@ -54,6 +56,7 @@ async def update_spreadsheet(
     charity_projects: list[CharityProject],
     wrapper_services: Aiogoogle,
 ) -> None:
+    """Update data in tab."""
     now_date_time = datetime.now().strftime(DATE_FORMAT)
     service = await wrapper_services.discover("sheets", "v4")
     table_values = [

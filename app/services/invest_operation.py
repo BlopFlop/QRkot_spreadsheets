@@ -1,27 +1,14 @@
 from datetime import datetime
 from typing import Union
 
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import CharityProject, Donation
-
-
-async def get_not_full_invest(
-    model: Union[CharityProject, Donation], session: AsyncSession
-) -> list[Union[CharityProject, Donation]]:
-    """Get model item for not full invested."""
-    not_full_invest = await session.execute(
-        select(model).where(model.fully_invested == 0)
-    )
-    objs = not_full_invest.scalars().all()
-
-    if objs is None:
-        return []
-    return objs
+from app.repository.base import RepositoryBase
 
 
 def close_obj(obj: Union[CharityProject, Donation]):
+    """Close invest process in object."""
     obj.invested_amount = obj.full_amount
     obj.fully_invested = True
     obj.close_date = datetime.utcnow()
@@ -33,6 +20,7 @@ def fill_obj(
     db_obj: Union[CharityProject, Donation],
     session: AsyncSession,
 ) -> None:
+    """Fill donation in project."""
     remainder_amount_new_obj = new_obj.full_amount - new_obj.invested_amount
     remainder_amount_db_item = db_obj.full_amount - db_obj.invested_amount
 
@@ -54,20 +42,16 @@ def fill_obj(
 
 async def invest_process(
     new_obj: Union[CharityProject, Donation],
-    session: AsyncSession,
+    repository: RepositoryBase,
 ) -> Union[CharityProject, Donation]:
-    if isinstance(new_obj, CharityProject):
-        no_full_invest_objs: Donation = await get_not_full_invest(
-            Donation, session
-        )
-    else:
-        no_full_invest_objs: CharityProject = await get_not_full_invest(
-            CharityProject, session
-        )
+    """Start invest process in projects."""
+    no_full_invest_objs = await repository.get_obj_for_field_arg(
+        field="fully_invested", arg=False, many=True
+    )
 
     for model in no_full_invest_objs:
-        fill_obj(new_obj, model, session)
+        fill_obj(new_obj, model, repository.session)
 
-    await session.commit()
-    await session.refresh(new_obj)
+    await repository.session.commit()
+    await repository.session.refresh(new_obj)
     return new_obj
